@@ -1,0 +1,216 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <conio.h>
+#include<windows.h>
+#include <time.h>
+
+#pragma warning(disable : 4996)
+
+int Playing_Field[40][60];
+
+struct COORDINATES {
+	struct Coordinates* Prev;
+	int x;
+	int y;
+	struct Coordinates* Next;
+};
+
+
+
+struct COORDINATES* Head;//
+struct COORDINATES Area;//
+struct COORDINATES Food;//
+struct COORDINATES Body;//
+struct COORDINATES Previous_Position;//
+
+
+
+
+
+
+void Scan_Field();
+void Field_Draw();
+int Worm(int *ptr_X, int*ptr_Y, int *KBhit, char *C);
+void Food_Spawn();
+void Linked_List(char *C);
+
+
+
+
+
+
+int RightSize = 60;
+int DownSize = 40;
+
+
+
+_Bool EndOfGame = 0;
+_Bool Is_There_Food = 1;
+
+int Start_Of_Game = 1;
+int Starting_Position = 1;
+
+
+char c = NULL;
+int main() {
+
+
+	printf("Press Enter To start");
+	Start_Of_Game = 1;
+
+	Head->x = 30;
+	Head->y = 20;
+	Area.x = 60;
+	Area.y = 40;
+	int Key;
+	Head->Prev = NULL;
+
+
+	srand(time(NULL));
+
+	if (getchar() == 10) {
+
+
+
+		while (EndOfGame == 0) {
+
+			Scan_Field();//Zapisva vuv masiva poleto.+		Head	{x=0 y=0 }	Coordinates
+
+
+			EndOfGame = Worm(&Head->x, &Head->y, &Key, &c);//Zadava vuv masiva tochkite na cherveq.
+
+			Food_Spawn();
+
+			Field_Draw();//Izprintva poleto.
+
+			_sleep(1000);
+
+			system("cls");
+		}
+		printf("Sorry, try again : :)");
+	}
+
+}
+
+
+void Scan_Field() {
+	for (int Down = 0; Down < Area.y; Down++) {
+		for (int Right = 0; Right < Area.x; Right++) {
+			if (Down == 0) {
+				Playing_Field[Down][Right] = '+';
+			}
+			else if (Down == (Area.y - 1)) {//Сканира предпоследен ред.
+				Playing_Field[Down][Right] = '+';
+			}
+			else if (Down != 0 && Down != (Area.y - 1)) {//Между 1ви и последен ред.
+				if (Right == 0 || Right == (Area.x - 1)) {
+					Playing_Field[Down][Right] = '+';
+				}
+				Playing_Field[Down][Right + 1] = ' ';// Сканира празните полета. GRESHAKA IZLIZA TUK PRI DOWN= 38, RIGHT =58.
+			}
+		}
+	}
+}
+
+void Field_Draw() {
+	for (int Nadolu = 0; Nadolu < DownSize; Nadolu++) {
+		for (int Nadqsno = 0; Nadqsno < RightSize; Nadqsno++) {
+			printf("%c", Playing_Field[Nadolu][Nadqsno]);
+		}
+		printf("\n");
+	}
+}
+
+int Worm(int *ptr_X, int *ptr_Y, int *KBhit, char *C)
+{
+	int Temporary_X;
+	int Temporary_Y;
+	int CurrentKeyPress;
+	*KBhit = kbhit();
+	if (KBhit != 0)
+	{
+		if (CurrentKeyPress = kbhit() != 0) { // Promqna
+			*C = getch();
+		}
+		if (C != NULL) {
+			Previous_Position.x = Head->x;
+			Previous_Position.y = Head->y;
+			switch (*C)
+			{
+			case 'A':
+				(Head->x)--;
+				if (Playing_Field[Head->y][Head->x] == '+') {
+					return 1;
+				}
+				else if (Playing_Field[Head->y][Head->x] == '0') {
+					Linked_List(C);
+				}
+
+				break;
+			case'S':
+				(Head->y)++;
+				if (Playing_Field[Head->y][Head->x] == '+') {
+					return 1;
+				}
+				Playing_Field[Head->y][Head->x] = '*';
+				break;
+			case'W':
+				(Head->y)--;
+				if (Playing_Field[Head->y][Head->x] == '+') {
+					return 1;
+				}
+				Playing_Field[Head->y][Head->x] = '*';
+				break;
+			case'D':
+				(Head->x)++;
+				if (Playing_Field[Head->y][Head->x] == '+') {
+					return 1;
+				}
+				Playing_Field[Head->y][Head->x] = '*';
+
+			default:
+				break;
+			}
+		}
+		else {
+			Playing_Field[Head->y][Head->x] = '*';
+
+		}
+	}
+	return 0;
+}
+
+void Food_Spawn()
+{
+	if (Is_There_Food == false) {
+		Food.x = (rand() % 60);
+		Food.y = (rand() % 40);
+
+		Is_There_Food = true;
+
+		if ((Playing_Field[Food.y][Food.x] == '+') || (Playing_Field[Food.y][Food.x] == '*')) {
+			while ((Playing_Field[Food.y][Food.x] = '+') || (Playing_Field[Food.y][Food.x] != '*')) {
+				Food.x = (rand() % 60);
+				Food.y = (rand() % 40);
+			}
+
+		}
+	}
+	Playing_Field[Food.y][Food.x] = '0';
+}
+
+void Linked_List(char *C)
+{
+	Playing_Field[Head->x][Head->y] = '*';
+	struct  Coordinates* temp = (struct Coordinates*)malloc(sizeof(struct Coordinates));
+
+	temp->x = Previous_Position.x;
+	temp->y = Previous_Position.y;
+	temp->Prev = Head;
+	temp->Next = NULL;
+	Head->Next = temp;
+	Playing_Field[temp->x][temp->y] = '*';
+
+
+}
